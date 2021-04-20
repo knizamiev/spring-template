@@ -7,7 +7,7 @@ create table users (
 	id bigint primary key,
 	name varchar(32) not null,
 	gender varchar(10) not null,
-	deleted boolean not null,
-	date date not null
+	deleted boolean not null default false,
+	date timestamp not null
 );
 create sequence users_seq;
