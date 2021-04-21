@@ -23,11 +23,6 @@ public class Controller {
 	@Autowired
 	private UserService userService;
 
-	@GetMapping("/hello")
-	public String hello() {
-		return "hello";
-	}
-
 	@PostMapping("/add")
 	public void addUsers(@RequestBody User user) {
 		user.setDate(new Date());
@@ -41,6 +36,10 @@ public class Controller {
 
 	@GetMapping("/user/{id}")
 	public UserDTO findAllUsers(@PathVariable long id) {
+		try {
 			return userService.getUser(id);
+		} catch (Exception e){
+			throw new ApiRequestExeption("Access denied", e);
+		}
 	}
 }

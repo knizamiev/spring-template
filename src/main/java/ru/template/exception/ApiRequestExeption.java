@@ -6,4 +6,7 @@ public class ApiRequestExeption extends RuntimeException{
 		super(message);
 	}
 
+	public ApiRequestExeption(String s, Throwable throwable) {
+		super(s, throwable);
+	}
 }

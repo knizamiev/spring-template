@@ -14,8 +14,7 @@ public class ApiExceptionHandler {
 	public ResponseEntity<Object> handleApiRequestException(ApiRequestExeption e){
 		ApiException apiException = new ApiException(
 				e.getMessage(),
-				HttpStatus.FORBIDDEN,
-				ZonedDateTime.now(ZoneId.of("Z"))
+				e
 		);
 		return new ResponseEntity<>(apiException, HttpStatus.FORBIDDEN);
 	}

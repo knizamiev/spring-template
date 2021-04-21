@@ -29,10 +29,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO getUser(long id) {
-		try {
-			return modelMapper.map(userDAO.findUser(id), UserDTO.class);
-		} catch (Exception e){
-			throw new ApiRequestExeption("Access denied");
-		}
+		return modelMapper.map(userDAO.findUser(id), UserDTO.class);
 	}
 }
