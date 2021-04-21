@@ -6,6 +6,8 @@ import ru.template.dao.common.AbstractDAO;
 import ru.template.model.User;
 
 import javax.sql.DataSource;
+import java.util.List;
+
 @Repository
 public class UserDAOImpl extends AbstractDAO implements UserDAO  {
 
@@ -22,5 +24,16 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO  {
 				"id, name, gender, date)" +
 				"values (nextval('users_seq'), :name, :gender, :date)", map("name", user.getName(),
 				"gender", user.getGender(), "date", user.getDate()));
+	}
+
+	@Override
+	public List<User> findAllUsers() {
+		return jdbcTemplate.query("select * from users", USER_ROW_MAPPER);
+	}
+
+	@Override
+	public User findUser(long id) {
+		return jdbcTemplate.queryForObject("select * from users where id = :id ",
+				map("id", id), USER_ROW_MAPPER);
 	}
 }
