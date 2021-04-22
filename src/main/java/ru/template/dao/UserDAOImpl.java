@@ -3,6 +3,7 @@ package ru.template.dao;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 import ru.template.dao.common.AbstractDAO;
+import ru.template.dao.common.ExtendedBeanPropertySqlParameterSource;
 import ru.template.model.User;
 
 import javax.sql.DataSource;
@@ -35,5 +36,18 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO  {
 	public User findUser(long id) {
 		return jdbcTemplate.queryForObject("select * from users where id = :id ",
 				map("id", id), USER_ROW_MAPPER);
+	}
+
+	@Override
+	public void updateUser(long id, User user) {
+		ExtendedBeanPropertySqlParameterSource params = new ExtendedBeanPropertySqlParameterSource(user);
+		String query = "update users set name = :name, gender = :gender, date = :date where id = :id";
+		jdbcTemplate.update(query, params);
+
+	}
+
+	@Override
+	public void deleteUser(long id) {
+		jdbcTemplate.update("delete from users where id = :id", map("id", id));
 	}
 }

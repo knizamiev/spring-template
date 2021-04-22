@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.template.dao.UserDAO;
 import ru.template.dto.UserDTO;
-import ru.template.exception.ApiRequestExeption;
 import ru.template.model.User;
 import ru.template.service.UserService;
 
@@ -36,10 +35,17 @@ public class Controller {
 
 	@GetMapping("/user/{id}")
 	public UserDTO findAllUsers(@PathVariable long id) {
-		try {
-			return userService.getUser(id);
-		} catch (Exception e){
-			throw new ApiRequestExeption("Access denied", e);
-		}
+		return userService.getUser(id);
+	}
+
+	@PostMapping("/update/{id}")
+	public void updateUser(@PathVariable long id, @RequestBody User user){
+		user.setDate(new Date());
+		userDAO.updateUser(id, user);
+	}
+
+	@PostMapping("/drop/{id}")
+	public void drop(@PathVariable long id){
+		userDAO.deleteUser(id);
 	}
 }
