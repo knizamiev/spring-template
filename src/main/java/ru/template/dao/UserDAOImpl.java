@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 import ru.template.dao.common.AbstractDAO;
 import ru.template.dao.common.ExtendedBeanPropertySqlParameterSource;
+import ru.template.dao.extractor.UserExtractor;
 import ru.template.model.User;
 
 import javax.sql.DataSource;
@@ -14,6 +15,8 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO  {
 
 	private static final BeanPropertyRowMapper<User> USER_ROW_MAPPER =
 			new BeanPropertyRowMapper<>(User.class);
+
+	private static final UserExtractor USER_EXTRACTOR = new UserExtractor() ;
 
 	public UserDAOImpl(DataSource dataSource) {
 		super(dataSource);
@@ -29,7 +32,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO  {
 
 	@Override
 	public List<User> findAllUsers() {
-		return jdbcTemplate.query("select * from users", USER_ROW_MAPPER);
+		return jdbcTemplate.query("select * from users", USER_EXTRACTOR);
 	}
 
 	@Override
