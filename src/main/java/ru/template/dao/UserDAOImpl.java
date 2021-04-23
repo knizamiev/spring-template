@@ -1,33 +1,49 @@
 package ru.template.dao;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.template.dao.common.AbstractDAO;
 import ru.template.dao.common.ExtendedBeanPropertySqlParameterSource;
 import ru.template.dao.extractor.UserExtractor;
 import ru.template.model.User;
+import ru.template.model.UserHistory;
 
 import javax.sql.DataSource;
 import java.util.List;
 
+import static ru.template.model.UserHistory.Status.CREATE;
+import static ru.template.model.UserHistory.Status.DELETE;
+import static ru.template.model.UserHistory.Status.UPDATE;
+
+
 @Repository
-public class UserDAOImpl extends AbstractDAO implements UserDAO  {
+public class UserDAOImpl extends AbstractDAO implements UserDAO {
 
 	private static final BeanPropertyRowMapper<User> USER_ROW_MAPPER =
 			new BeanPropertyRowMapper<>(User.class);
+	private static final UserExtractor USER_EXTRACTOR = new UserExtractor();
+	private final UserHistoryDAO userHistoryDAO;
 
-	private static final UserExtractor USER_EXTRACTOR = new UserExtractor() ;
-
-	public UserDAOImpl(DataSource dataSource) {
+	public UserDAOImpl(DataSource dataSource, UserHistoryDAO userHistoryDAO) {
 		super(dataSource);
+		this.userHistoryDAO = userHistoryDAO;
 	}
 
+	@Transactional
 	@Override
 	public void add(User user) {
+		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
 		jdbcTemplate.update("insert into users(" +
 				"id, name, gender, date)" +
-				"values (nextval('users_seq'), :name, :gender, :date)", map("name", user.getName(),
-				"gender", user.getGender(), "date", user.getDate()));
+				"values (nextval('users_seq'), :name, :gender, :date)",
+				new ExtendedBeanPropertySqlParameterSource(user),
+				keyHolder,
+				new String[]{"id"});
+
+		userHistoryDAO.create(new UserHistory(keyHolder.getKey().longValue(), CREATE));
 	}
 
 	@Override
@@ -41,16 +57,29 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO  {
 				map("id", id), USER_ROW_MAPPER);
 	}
 
+	@Transactional
 	@Override
 	public void updateUser(long id, User user) {
 		ExtendedBeanPropertySqlParameterSource params = new ExtendedBeanPropertySqlParameterSource(user);
+		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
 		String query = "update users set name = :name, gender = :gender, date = :date where id = :id";
-		jdbcTemplate.update(query, params);
+		jdbcTemplate.update(query, params,keyHolder,
+				new String[]{"id"});
+
+
+		userHistoryDAO.create(new UserHistory(keyHolder.getKey().longValue(), UPDATE));
 
 	}
 
+	@Transactional
 	@Override
 	public void deleteUser(long id) {
-		jdbcTemplate.update("delete from users where id = :id", map("id", id));
+		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+		jdbcTemplate.update("delete from users where id = :id", new ExtendedBeanPropertySqlParameterSource(id),
+				keyHolder, new String[]{"id"});
+
+		userHistoryDAO.create(new UserHistory(keyHolder.getKey().longValue(), DELETE));
 	}
 }

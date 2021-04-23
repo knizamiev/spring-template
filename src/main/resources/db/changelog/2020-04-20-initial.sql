@@ -11,3 +11,10 @@ create table users (
 	date timestamp not null
 );
 create sequence users_seq;
+
+create table users_history (
+	id bigint primary key,
+	user_id bigint not null,
+    status varchar(10) not null
+);
+create sequence users_history_seq;
