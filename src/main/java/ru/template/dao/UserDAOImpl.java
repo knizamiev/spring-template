@@ -1,6 +1,8 @@
 package ru.template.dao;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,14 +61,12 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 
 	@Transactional
 	@Override
-	public void updateUser(long id, User user) {
-		ExtendedBeanPropertySqlParameterSource params = new ExtendedBeanPropertySqlParameterSource(user);
+	public void updateUser(User user) {
 		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
 		String query = "update users set name = :name, gender = :gender, date = :date where id = :id";
-		jdbcTemplate.update(query, params,keyHolder,
+		jdbcTemplate.update(query, new ExtendedBeanPropertySqlParameterSource(user), keyHolder,
 				new String[]{"id"});
-
 
 		userHistoryDAO.create(new UserHistory(keyHolder.getKey().longValue(), UPDATE));
 
@@ -77,7 +77,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	public void deleteUser(long id) {
 		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
-		jdbcTemplate.update("delete from users where id = :id", new ExtendedBeanPropertySqlParameterSource(id),
+		jdbcTemplate.update("delete from users where id = :id", new MapSqlParameterSource(map("id", id)),
 				keyHolder, new String[]{"id"});
 
 		userHistoryDAO.create(new UserHistory(keyHolder.getKey().longValue(), DELETE));

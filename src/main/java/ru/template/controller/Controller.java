@@ -38,10 +38,10 @@ public class Controller {
 		return userService.getUser(id);
 	}
 
-	@PostMapping("/update/{id}")
-	public void updateUser(@PathVariable long id, @RequestBody User user){
+	@PostMapping("/update")
+	public void updateUser(@RequestBody User user){
 		user.setDate(new Date());
-		userDAO.updateUser(id, user);
+		userDAO.updateUser(user);
 	}
 
 	@PostMapping("/drop/{id}")
